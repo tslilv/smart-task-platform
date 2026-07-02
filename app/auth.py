@@ -1,0 +1,72 @@
+from werkzeug.security import generate_password_hash, check_password_hash
+from app.db import get_db
+from app.analytics import log_event
+
+
+def register_user(name, email, password):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    password_hash = generate_password_hash(password)
+
+    try:
+        cursor.execute("""
+            INSERT INTO users (name, email, password_hash)
+            VALUES (?, ?, ?)
+        """, (name, email, password_hash))
+
+        user_id = cursor.lastrowid
+        conn.commit()
+
+        log_event(user_id, "register", {"email": email})
+
+        return {
+            "success": True,
+            "user_id": user_id,
+            "message": "User registered successfully"
+        }
+
+    except Exception as error:
+        return {
+            "success": False,
+            "message": str(error)
+        }
+
+    finally:
+        conn.close()
+
+
+def login_user(email, password):
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM users
+        WHERE email = ?
+    """, (email,))
+
+    user = cursor.fetchone()
+    conn.close()
+
+    if user is None:
+        return {
+            "success": False,
+            "message": "Invalid email or password"
+        }
+
+    if not check_password_hash(user["password_hash"], password):
+        return {
+            "success": False,
+            "message": "Invalid email or password"
+        }
+
+    log_event(user["id"], "login", {"email": email})
+
+    return {
+        "success": True,
+        "user_id": user["id"],
+        "name": user["name"],
+        "email": user["email"],
+        "message": "Login successful"
+    }
