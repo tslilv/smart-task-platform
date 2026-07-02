@@ -1,0 +1,26 @@
+body {
+    background-color: #f4f6f9;
+}
+
+.card {
+    border: none;
+    border-radius: 16px;
+}
+
+.navbar {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.task-card {
+    border-radius: 16px;
+    transition: 0.2s;
+}
+
+.task-card:hover {
+    transform: translateY(-3px);
+}
+
+.kpi-number {
+    font-size: 32px;
+    font-weight: bold;
+}
