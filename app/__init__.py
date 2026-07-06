@@ -14,6 +14,8 @@ def create_app():
         static_folder=static_dir
     )
 
+    app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+
     init_db(app)
 
     from app.routes import main

@@ -1,6 +1,8 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.db import get_db
 from app.analytics import log_event
+from functools import wraps
+from flask import session, jsonify
 
 
 def register_user(name, email, password):
@@ -70,3 +72,12 @@ def login_user(email, password):
         "email": user["email"],
         "message": "Login successful"
     }
+
+
+def login_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        if "user_id" not in session:
+            return jsonify({"message": "Authentication required"}), 401
+        return f(*args, **kwargs)
+    return wrapper

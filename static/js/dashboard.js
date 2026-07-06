@@ -57,7 +57,6 @@ async function createTask() {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            user_id: Number(userId),
             title: document.getElementById("title").value,
             description: document.getElementById("description").value,
             priority: document.getElementById("priority").value
@@ -83,7 +82,7 @@ async function loadTasks() {
         return;
     }
 
-    const response = await fetch(`/tasks/${userId}`);
+    const response = await fetch("/tasks");
     allTasks = await response.json();
 
     renderTasks();
@@ -150,12 +149,9 @@ function renderTasks() {
 }
 
 async function completeTask(taskId) {
-    const userId = Number(document.getElementById("user_id").value);
-
     const response = await fetch(`/task/${taskId}/complete`, {
         method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({user_id: userId})
+        headers: {"Content-Type": "application/json"}
     });
 
     const data = await response.json();
@@ -166,8 +162,6 @@ async function completeTask(taskId) {
 }
 
 async function editTask(taskId, currentTitle, currentDescription, currentPriority) {
-    const userId = Number(document.getElementById("user_id").value);
-
     const newTitle = prompt("Edit task title:", currentTitle);
     if (newTitle === null) return;
 
@@ -181,7 +175,6 @@ async function editTask(taskId, currentTitle, currentDescription, currentPriorit
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
-            user_id: userId,
             title: newTitle,
             description: newDescription,
             priority: newPriority
@@ -196,16 +189,13 @@ async function editTask(taskId, currentTitle, currentDescription, currentPriorit
 }
 
 async function deleteTask(taskId) {
-    const userId = Number(document.getElementById("user_id").value);
-
     if (!confirm("Are you sure you want to delete this task?")) {
         return;
     }
 
     const response = await fetch(`/task/${taskId}`, {
         method: "DELETE",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({user_id: userId})
+        headers: {"Content-Type": "application/json"}
     });
 
     const data = await response.json();

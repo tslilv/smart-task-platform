@@ -1,3 +1,5 @@
 Flask
 pytest
 Werkzeug
+openai
+python-dotenv

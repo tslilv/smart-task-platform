@@ -100,3 +100,34 @@ def get_tasks_by_status():
     conn.close()
 
     return [dict(row) for row in rows]
+
+def get_tasks_by_priority():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT priority, COUNT(*) AS count
+        FROM tasks
+        GROUP BY priority
+    """)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [dict(row) for row in rows]
+
+
+def get_tasks_by_status():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT status, COUNT(*) AS count
+        FROM tasks
+        GROUP BY status
+    """)
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    return [dict(row) for row in rows]

@@ -29,8 +29,9 @@ def init_db(app):
             user_id INTEGER NOT NULL,
             title TEXT NOT NULL,
             description TEXT,
-            status TEXT DEFAULT 'open',
+            status TEXT DEFAULT 'todo',
             priority TEXT DEFAULT 'medium',
+            due_date TEXT,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             completed_at TEXT,
             FOREIGN KEY (user_id) REFERENCES users(id)
