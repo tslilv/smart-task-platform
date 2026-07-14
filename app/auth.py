@@ -1,3 +1,5 @@
+"""Authentication helpers for registration, login, and session protection."""
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.db import get_db
 from app.analytics import log_event
@@ -6,6 +8,7 @@ from flask import session, jsonify
 
 
 def register_user(name, email, password):
+    """Register a new user and record a registration event."""
     conn = get_db()
     cursor = conn.cursor()
 
@@ -39,6 +42,7 @@ def register_user(name, email, password):
 
 
 def login_user(email, password):
+    """Authenticate a user by email and password."""
     conn = get_db()
     cursor = conn.cursor()
 
@@ -75,6 +79,7 @@ def login_user(email, password):
 
 
 def login_required(f):
+    """Require a logged-in user before serving the route."""
     @wraps(f)
     def wrapper(*args, **kwargs):
         if "user_id" not in session:

@@ -1,3 +1,5 @@
+"""Main Flask routes for the Smart Task Platform API and dashboard."""
+
 from flask import Blueprint, request, jsonify, render_template, session
 
 from app.db import get_db
@@ -20,15 +22,11 @@ from app.validators import require_fields
 
 main = Blueprint("main", __name__)
 
+# Authentication endpoints
+# ------------------------
+
 
 @main.route("/")
-def home():
-    return jsonify({
-        "message": "Welcome to Smart Task Platform!"
-    })
-
-
-@main.route("/dashboard")
 def dashboard():
     return render_template("index.html")
 

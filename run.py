@@ -1,3 +1,5 @@
+"""Entry point for Smart Task Platform."""
+
 from app import create_app
 
 app = create_app()

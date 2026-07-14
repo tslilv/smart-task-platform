@@ -1,7 +1,10 @@
+"""Experiment helpers for variant assignment and result reporting."""
+
 from app.db import get_db
 
 
 def assign_variant(user_id, experiment_name):
+    """Return the assigned variant and persist a new assignment if none exists."""
     conn = get_db()
     cursor = conn.cursor()
 
@@ -31,6 +34,7 @@ def assign_variant(user_id, experiment_name):
 
 
 def get_experiment_results(experiment_name):
+    """Return the user count for each variant in an experiment."""
     conn = get_db()
     cursor = conn.cursor()
 

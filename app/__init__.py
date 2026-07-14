@@ -1,9 +1,12 @@
+"""Application factory and Flask configuration."""
+
 import os
 from flask import Flask
 from app.db import init_db
 
 
 def create_app():
+    """Create and configure the Flask application."""
     base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     template_dir = os.path.join(base_dir, "templates")
     static_dir = os.path.join(base_dir, "static")

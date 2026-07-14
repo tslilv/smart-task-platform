@@ -1,15 +1,19 @@
+"""Database helpers for SQLite connections and schema initialization."""
+
 import sqlite3
 
 DATABASE_NAME = "database.db"
 
 
 def get_db():
+    """Open a SQLite connection and return a row factory-enabled connection."""
     conn = sqlite3.connect(DATABASE_NAME)
     conn.row_factory = sqlite3.Row
     return conn
 
 
 def init_db(app):
+    """Create required database tables when the app starts."""
     conn = get_db()
     cursor = conn.cursor()
 

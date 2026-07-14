@@ -1,3 +1,5 @@
+"""Data models used across the Smart Task Platform."""
+
 from dataclasses import dataclass
 
 

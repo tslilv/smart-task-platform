@@ -1,8 +1,11 @@
+"""Analytics helpers for events, active users, and task reports."""
+
 import json
 from app.db import get_db
 
 
 def log_event(user_id, event_type, metadata=None):
+    """Record a user event with optional JSON metadata."""
     conn = get_db()
     cursor = conn.cursor()
 
@@ -18,6 +21,7 @@ def log_event(user_id, event_type, metadata=None):
 
 
 def get_daily_active_users():
+    """Return the number of distinct users with events today."""
     conn = get_db()
     cursor = conn.cursor()
 
@@ -34,6 +38,7 @@ def get_daily_active_users():
 
 
 def get_tasks_created_count():
+    """Return the total number of create_task events."""
     conn = get_db()
     cursor = conn.cursor()
 
@@ -50,6 +55,7 @@ def get_tasks_created_count():
 
 
 def get_completion_rate():
+    """Compute the task completion percentage."""
     conn = get_db()
     cursor = conn.cursor()
 
@@ -70,7 +76,9 @@ def get_completion_rate():
 
     return round((completed_tasks / total_tasks) * 100, 2)
 
+
 def get_tasks_by_priority():
+    """Return task counts grouped by priority."""
     conn = get_db()
     cursor = conn.cursor()
 

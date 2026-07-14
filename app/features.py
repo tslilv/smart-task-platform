@@ -1,7 +1,10 @@
+"""Feature flag helpers for runtime enable/disable checks."""
+
 from app.db import get_db
 
 
 def is_feature_enabled(feature_name):
+    """Return True when the named feature flag is enabled."""
     conn = get_db()
     cursor = conn.cursor()
 
@@ -21,9 +24,11 @@ def is_feature_enabled(feature_name):
 
 
 def enable_feature(feature_name):
+    """Enable the named feature flag."""
     conn = get_db()
     cursor = conn.cursor()
 
+    # Update the feature flag: insert a new entry or update existing one.
     cursor.execute("""
         INSERT INTO feature_flags(feature_name, is_enabled)
         VALUES(?, 1)
@@ -36,9 +41,11 @@ def enable_feature(feature_name):
 
 
 def disable_feature(feature_name):
+    """Disable the named feature flag."""
     conn = get_db()
     cursor = conn.cursor()
 
+    # Update the feature flag: insert a new entry or update existing one.
     cursor.execute("""
         INSERT INTO feature_flags(feature_name, is_enabled)
         VALUES(?, 0)
