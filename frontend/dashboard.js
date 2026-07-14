@@ -1,6 +1,25 @@
+// Backend server URL.
+// This is required because the frontend and backend now run on separate origins,
+// so requests must include the full backend address.
+const API_BASE = "http://127.0.0.1:5000";
+
 let allTasks = [];
+let isLoggedIn = false;
+
+// Wrapper function around fetch that automatically adds:
+// 1. The full backend URL.
+// 2. credentials: "include" to send and receive session cookies
+//    when communicating between different origins.
+//    Without this, the user session would be lost between requests.
+async function apiFetch(path, options = {}) {
+    return fetch(`${API_BASE}${path}`, {
+        ...options,
+        credentials: "include",
+    });
+}
+
 async function signup() {
-    const response = await fetch("/signup", {
+    const response = await apiFetch("/signup", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -13,15 +32,15 @@ async function signup() {
     const data = await response.json();
     alert(data.message);
 
-    if (data.user_id) {
-        setUser(data.user_id);
+    if (data.success) {
+        setLoggedIn(true);
         loadTasks();
         loadAnalytics();
     }
 }
 
 async function login() {
-    const response = await fetch("/login", {
+    const response = await apiFetch("/login", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -33,27 +52,35 @@ async function login() {
     const data = await response.json();
     alert(data.message);
 
-    if (data.user_id) {
-        setUser(data.user_id);
+    if (data.success) {
+        setLoggedIn(true);
         loadTasks();
         loadAnalytics();
     }
 }
 
-function setUser(userId) {
-    document.getElementById("user_id").value = userId;
-    document.getElementById("currentUser").innerText = userId;
+function setLoggedIn(value) {
+    isLoggedIn = value;
+    document.getElementById("currentUser").innerText = value ? "Yes" : "No";
+}
+async function checkSession() {
+    const response = await apiFetch("/session");
+    const data = await response.json();
+
+    setLoggedIn(data.logged_in);
+
+    if (data.logged_in) {
+        loadTasks();
+    }
 }
 
 async function createTask() {
-    const userId = document.getElementById("user_id").value;
-
-    if (!userId) {
+    if (!isLoggedIn) {
         alert("Please login or sign up first");
         return;
     }
 
-    const response = await fetch("/task", {
+    const response = await apiFetch("/task", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -75,14 +102,11 @@ async function createTask() {
 }
 
 async function loadTasks() {
-    const userId = document.getElementById("user_id").value;
-
-    if (!userId) {
-        alert("Please login or sign up first");
+    if (!isLoggedIn) {
         return;
     }
 
-    const response = await fetch("/tasks");
+    const response = await apiFetch("/tasks");
     allTasks = await response.json();
 
     renderTasks();
@@ -149,7 +173,7 @@ function renderTasks() {
 }
 
 async function completeTask(taskId) {
-    const response = await fetch(`/task/${taskId}/complete`, {
+    const response = await apiFetch(`/task/${taskId}/complete`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"}
     });
@@ -171,7 +195,7 @@ async function editTask(taskId, currentTitle, currentDescription, currentPriorit
     const newPriority = prompt("Edit priority: low / medium / high", currentPriority);
     if (newPriority === null) return;
 
-    const response = await fetch(`/task/${taskId}`, {
+    const response = await apiFetch(`/task/${taskId}`, {
         method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({
@@ -193,7 +217,7 @@ async function deleteTask(taskId) {
         return;
     }
 
-    const response = await fetch(`/task/${taskId}`, {
+    const response = await apiFetch(`/task/${taskId}`, {
         method: "DELETE",
         headers: {"Content-Type": "application/json"}
     });
@@ -206,13 +230,13 @@ async function deleteTask(taskId) {
 }
 
 async function loadAnalytics() {
-    const dauResponse = await fetch("/analytics/dau");
+    const dauResponse = await apiFetch("/analytics/dau");
     const dau = await dauResponse.json();
 
-    const tasksResponse = await fetch("/analytics/tasks-created");
+    const tasksResponse = await apiFetch("/analytics/tasks-created");
     const tasks = await tasksResponse.json();
 
-    const rateResponse = await fetch("/analytics/completion-rate");
+    const rateResponse = await apiFetch("/analytics/completion-rate");
     const rate = await rateResponse.json();
 
     document.getElementById("dau").innerText = dau.daily_active_users;
@@ -257,4 +281,9 @@ function escapeForJs(text) {
         .replaceAll("\r", "");
 }
 
+// Restore the login state from the backend session when the page loads.
+checkSession();
+
+// Load analytics when the page starts.
+// These endpoints are public and do not require user authentication.
 loadAnalytics();
