@@ -69,6 +69,7 @@ def session_status():
     })
 
 
+# TODO: Move task-related logic into a dedicated module (tasks.py)
 @main.route("/task", methods=["POST"])
 @login_required
 def create_task():
