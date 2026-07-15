@@ -1,4 +1,4 @@
-"""Main Flask routes for the Smart Task Platform API and dashboard."""
+"""Main Flask routes for the Smart Task Platform API."""
 
 from flask import Blueprint, request, jsonify, session
 
@@ -12,30 +12,23 @@ from app.analytics import (
     get_tasks_by_status,
 )
 from app.auth import register_user, login_user, login_required
-from app.experiments import assign_variant, get_experiment_results
-from app.features import (
-    is_feature_enabled,
-    enable_feature,
-    disable_feature,
-)
 from app.validators import require_fields
 
 main = Blueprint("main", __name__)
-
-# Authentication endpoints
-# ------------------------
 
 
 @main.route("/signup", methods=["POST"])
 def signup():
     data = request.json
 
+    # Stop the request early if any required signup field is missing.
     error = require_fields(data, ["name", "email", "password"])
     if error:
         return error
 
     result = register_user(data["name"], data["email"], data["password"])
 
+    # Automatically log in the user after a successful registration.
     if result["success"]:
         session["user_id"] = result["user_id"]
 
@@ -52,6 +45,7 @@ def login():
 
     result = login_user(data["email"], data["password"])
 
+    # Store the authenticated user's ID in the session.
     if result["success"]:
         session["user_id"] = result["user_id"]
 
@@ -60,6 +54,7 @@ def login():
 
 @main.route("/logout", methods=["POST"])
 def logout():
+    # Remove the authenticated user from the session
     session.pop("user_id", None)
     return jsonify({"message": "Logged out"})
 
@@ -67,7 +62,7 @@ def logout():
 @main.route("/session", methods=["GET"])
 def session_status():
     user_id = session.get("user_id")
-
+    # Return current active session (boolean, int user_id)
     return jsonify({
         "logged_in": user_id is not None,
         "user_id": user_id
@@ -241,53 +236,6 @@ def tasks_created():
 def completion_rate():
     return jsonify({
         "completion_rate": get_completion_rate()
-    })
-
-
-@main.route("/experiment/<experiment_name>/<int:user_id>")
-def experiment_variant(experiment_name, user_id):
-    variant = assign_variant(user_id, experiment_name)
-
-    return jsonify({
-        "experiment_name": experiment_name,
-        "user_id": user_id,
-        "variant": variant
-    })
-
-
-@main.route("/experiment/<experiment_name>/results")
-def experiment_results(experiment_name):
-    return jsonify({
-        "experiment_name": experiment_name,
-        "results": get_experiment_results(experiment_name)
-    })
-
-
-@main.route("/feature/<feature_name>")
-def feature_status(feature_name):
-    return jsonify({
-        "feature_name": feature_name,
-        "enabled": is_feature_enabled(feature_name)
-    })
-
-
-@main.route("/feature/<feature_name>/enable", methods=["POST"])
-def feature_enable(feature_name):
-    enable_feature(feature_name)
-
-    return jsonify({
-        "feature_name": feature_name,
-        "enabled": True
-    })
-
-
-@main.route("/feature/<feature_name>/disable", methods=["POST"])
-def feature_disable(feature_name):
-    disable_feature(feature_name)
-
-    return jsonify({
-        "feature_name": feature_name,
-        "enabled": False
     })
 
 

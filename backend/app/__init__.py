@@ -8,15 +8,11 @@ from flask_cors import CORS
 
 def create_app():
     """Create and configure the Flask application."""
-    base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-    template_dir = os.path.join(base_dir, "templates")
-    static_dir = os.path.join(base_dir, "static")
+    # base_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    # template_dir = os.path.join(base_dir, "templates")
+    # static_dir = os.path.join(base_dir, "static")
 
-    app = Flask(
-        __name__,
-        template_folder=template_dir,
-        static_folder=static_dir
-    )
+    app = Flask(__name__)
 
     # Load the Flask secret key from an environment variable or use a default value for development.
     app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")

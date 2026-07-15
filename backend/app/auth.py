@@ -15,14 +15,17 @@ def register_user(name, email, password):
     password_hash = generate_password_hash(password)
 
     try:
+        # Use parameterized SQL placeholders to safely insert user-provided values.
         cursor.execute("""
             INSERT INTO users (name, email, password_hash)
             VALUES (?, ?, ?)
         """, (name, email, password_hash))
 
+        # Retrieve the ID automatically generated for the new user.
         user_id = cursor.lastrowid
         conn.commit()
 
+        # Record the successful registration for analytics and activity tracking.
         log_event(user_id, "register", {"email": email})
 
         return {
@@ -44,16 +47,21 @@ def register_user(name, email, password):
 def login_user(email, password):
     """Authenticate a user by email and password."""
     conn = get_db()
-    cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT *
-        FROM users
-        WHERE email = ?
-    """, (email,))
+    try:
+        cursor = conn.cursor()
 
-    user = cursor.fetchone()
-    conn.close()
+        # Look up the user by email using a parameterized query.
+        cursor.execute("""
+                SELECT *
+                FROM users
+                WHERE email = ?
+            """, (email,))
+
+        user = cursor.fetchone()
+
+    finally:
+        conn.close()
 
     if user is None:
         return {
@@ -69,6 +77,7 @@ def login_user(email, password):
 
     log_event(user["id"], "login", {"email": email})
 
+    # if login succeeded, return user information dictionary
     return {
         "success": True,
         "user_id": user["id"],
@@ -82,6 +91,7 @@ def login_required(f):
     """Require a logged-in user before serving the route."""
     @wraps(f)
     def wrapper(*args, **kwargs):
+
         if "user_id" not in session:
             return jsonify({"message": "Authentication required"}), 401
         return f(*args, **kwargs)

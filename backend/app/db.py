@@ -53,24 +53,6 @@ def init_db(app):
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS experiments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            experiment_name TEXT NOT NULL,
-            variant TEXT NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS feature_flags (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            feature_name TEXT NOT NULL UNIQUE,
-            is_enabled INTEGER DEFAULT 0
-        )
-    """)
-
-    cursor.execute("""
         CREATE TABLE IF NOT EXISTS backlog_items (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
